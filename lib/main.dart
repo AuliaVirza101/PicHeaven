@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:photoidea_app/core/di.dart';
 import 'package:photoidea_app/screen/pages/fragment/dashboard_pages.dart';
 
 void main() {
+  initInjection();
   runApp(const MainApp());
 }
 
@@ -10,11 +12,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      routes: {
-        '/': (context) => const DashboardPage()
-      },
+      routes: {'/': (context) => const DashboardPage()},
     );
   }
 }
