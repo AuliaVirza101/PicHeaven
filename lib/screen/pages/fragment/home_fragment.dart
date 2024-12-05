@@ -1,7 +1,12 @@
 import 'package:d_input/d_input.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:photoidea_app/common/app_constants.dart';
+import 'package:photoidea_app/common/enums.dart';
+import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/data/datasources/remote_photo_datasources.dart';
+import 'package:photoidea_app/screen/controller/currated_photos_controller.dart';
 
 class HomeFragment extends StatefulWidget {
   const HomeFragment({super.key});
@@ -13,7 +18,7 @@ class HomeFragment extends StatefulWidget {
 class _HomeFragmentState extends State<HomeFragment> {
   @override
   final queryController = TextEditingController();
-
+  final curratedPhotosController = Get.put(CurratedPhotosController());
   //manual karena tidak ada api untuk categories biar cantik saja :')
   final categories = [
     'happy',
@@ -29,16 +34,26 @@ class _HomeFragmentState extends State<HomeFragment> {
   void gotoSearch() {}
 
   void initState() {
-    RemotePhotoDatasources.fetchCurrated(1, 10);
+    curratedPhotosController.fetchRequest();
     super.initState();
   }
 
+  void dispose() {
+    CurratedPhotosController.delete();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(0),
-      children: [
-        buildHeader(),
-      ],
+    return RefreshIndicator.adaptive(
+      onRefresh: () async {},
+      child: ListView(
+        padding: const EdgeInsets.all(0),
+        children: [
+          buildHeader(),
+          buildCategories(),
+          buildCurrated(),
+        ],
+      ),
     );
   }
 
@@ -117,7 +132,7 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   Widget buildCategories() {
     return SizedBox(
-      height: 150,
+      height: 80,
       child: ListView.builder(
         itemCount: categories.length,
         scrollDirection: Axis.horizontal,
@@ -142,6 +157,40 @@ class _HomeFragmentState extends State<HomeFragment> {
           );
         },
       ),
+    );
+  }
+
+  Widget buildCurrated() {
+    return Obx(() {
+      final state = curratedPhotosController.state;
+      if (state.fetchStatus == FetchStatus.init) {
+        return const SizedBox();
+      }
+      final list = state.list ?? [];
+
+      return GridView.builder(
+        itemCount: list.length,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 5,
+          crossAxisSpacing: 5,
+          childAspectRatio: 1,
+        ),
+        padding: const EdgeInsets.all(0),
+        itemBuilder: (context, index) {
+          final item = list[index];
+          return buildPhotoItem(item);
+        },
+      );
+    });
+  }
+
+  Widget buildPhotoItem(PhotoModel photo) {
+    return ExtendedImage.network(
+      photo.source?.medium ?? '',
+      fit: BoxFit.cover,
     );
   }
 }

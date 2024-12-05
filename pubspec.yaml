@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   d_input: ^0.5.1
+  extended_image: ^9.0.7
   fd_log: ^0.0.8
   flutter:
     sdk: flutter
