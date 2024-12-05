@@ -13,7 +13,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final indexFragment = RxInt(1);
+  final indexFragment = RxInt(0);
   final menuBottomNavbar = [Icons.home, Icons.bookmark];
 
   @override

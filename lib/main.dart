@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:photoidea_app/core/di.dart';
 import 'package:photoidea_app/screen/pages/fragment/dashboard_pages.dart';
 
@@ -14,6 +15,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme : ThemeData(
+        textTheme: GoogleFonts.poppinsTextTheme(),
+      ),
       routes: {'/': (context) => const DashboardPage()},
     );
   }

@@ -7,11 +7,13 @@ environment:
   sdk: '>=3.4.4 <4.0.0'
 
 dependencies:
+  d_input: ^0.5.1
   fd_log: ^0.0.8
   flutter:
     sdk: flutter
   get: ^4.6.6
   get_it: ^8.0.2
+  google_fonts: ^6.2.1
   http: ^1.2.2
 
 dev_dependencies:
