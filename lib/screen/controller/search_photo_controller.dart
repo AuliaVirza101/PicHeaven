@@ -59,7 +59,7 @@ class SearchPhotostate {
     this.fetchStatus = FetchStatus.init,
     this.message = '',
     this.list = const [],
-    this.currentPage = 0,
+    this.currentPage = 1,
     this.hasMore = true,
   });
 

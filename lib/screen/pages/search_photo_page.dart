@@ -6,6 +6,7 @@ import 'package:photoidea_app/common/enums.dart';
 import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/screen/controller/search_photo_controller.dart';
 import 'package:gap/gap.dart';
+import 'package:photoidea_app/screen/pages/detail_photo_page.dart';
 
 class SearchPhotoPage extends StatefulWidget {
   const SearchPhotoPage({super.key, required this.query});
@@ -25,9 +26,10 @@ class _SearchPhotoPageState extends State<SearchPhotoPage> {
 
   void startSearch() {
     final query = queryController.text;
-    if (query == '') {
-      searchPhotosController.research(query);
-    }
+    if (query == '') return; 
+    
+    searchPhotosController.research(query);
+    
   }
 
   void gotoUpPage() {
@@ -35,6 +37,12 @@ class _SearchPhotoPageState extends State<SearchPhotoPage> {
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn);
     showUpButton.value = false;
+  }
+
+  void gotoDetail(PhotoModel photo) {
+    Navigator.pushNamed(
+      context, DetailPhotoPage.routeName,
+      arguments: photo.id);
   }
 
   @override
@@ -61,7 +69,7 @@ class _SearchPhotoPageState extends State<SearchPhotoPage> {
     });
     super.initState();
   }
-
+  @override
   void dispose() {
     SearchPhotosController.delete();
     scrollController.dispose;
@@ -72,6 +80,7 @@ class _SearchPhotoPageState extends State<SearchPhotoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: buildSearch(),
         backgroundColor: Colors.white,
       ),
@@ -137,10 +146,13 @@ class _SearchPhotoPageState extends State<SearchPhotoPage> {
     });
   }
 
-  Widget buildPhotoItem(PhotoModel photo) {
-    return ExtendedImage.network(
-      photo.source?.medium ?? '',
-      fit: BoxFit.cover,
+   Widget buildPhotoItem(PhotoModel photo) {
+    return GestureDetector(
+      onTap: () => gotoDetail(photo),
+      child: ExtendedImage.network(
+        photo.source?.medium ?? '',
+        fit: BoxFit.cover,
+      ),
     );
   }
 

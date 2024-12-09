@@ -22,7 +22,7 @@ class CurratedPhotosController extends GetxController {
     );
 
     final (success, message, newlist) =
-        await RemotePhotoDatasources.fetchCurrated(
+      await RemotePhotoDatasources.fetchCurrated(
       state.currentPage,
       10,
     );
@@ -58,7 +58,7 @@ class CurratedPhotoState {
     this.fetchStatus = FetchStatus.init,
     this.message = '',
     this.list = const [],
-    this.currentPage = 0,
+    this.currentPage = 1,
     this.hasMore = true,
   });
 
