@@ -8,7 +8,7 @@ class DetailPhotoController extends GetxController {
   DetailPhotoControllerState get state => _state.value;
   set state(DetailPhotoControllerState n) => _state.value = n;
 
-  Future<void> fetchRequest(int id) async {
+  Future<PhotoModel?> fetchRequest(int id) async {
     state = state.copyWith(
       fetchStatus: FetchStatus.loading,
     );
@@ -20,6 +20,8 @@ class DetailPhotoController extends GetxController {
       message: message,
       data: data,
     );
+
+    return data;
   }
 
   static delete() {

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:photoidea_app/common/enums.dart';
+import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/screen/controller/detail_photo_controller.dart';
+import 'package:photoidea_app/screen/controller/related_photo_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetailPhotoPage extends StatefulWidget {
@@ -19,6 +21,7 @@ class DetailPhotoPage extends StatefulWidget {
 
 class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final detailPhotoController = Get.put(DetailPhotoController());
+  final relatedPhotosController = Get.put(RelatedPhotosController());
 
   void openUrl(String url) async {
     if (!await launchUrl(Uri.parse(url))) {
@@ -27,13 +30,27 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   }
 
   void fetchDetail() {
-    detailPhotoController.fetchRequest(widget.id);
+    detailPhotoController.fetchRequest(widget.id).then((photo) {
+      if (photo == null) return;
+      fetchRelated(photo.alt ?? '');
+    });
+  }
+
+  void fetchRelated(String query) {
+    relatedPhotosController.fetchRequest(query);
   }
 
   @override
   void initState() {
     fetchDetail();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    DetailPhotoController.delete();
+    RelatedPhotosController.delete();
+    super.dispose();
   }
 
   @override
@@ -82,7 +99,9 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
             const Gap(20),
             buildDescription(photo.alt ?? ''),
             buildPhotographer(
-                photo.photographer ?? '', photo.photographerUrl ?? '')
+                photo.photographer ?? '', photo.photographerUrl ?? ''),
+            const Gap(10),
+            buildRelated(),
           ],
         );
       }),
@@ -198,6 +217,67 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
             decoration: TextDecoration.underline,
             decorationThickness: 0.5,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRelated() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'More like this',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        Gap(12),
+        Obx(() {
+          final state = relatedPhotosController.state;
+          if (state.fetchStatus == FetchStatus.init) {
+            return const SizedBox();
+          }
+          if (state.fetchStatus == FetchStatus.loading) {
+            return Center(child: Text(state.message));
+          }
+          if (state.fetchStatus == FetchStatus.failed) {
+            return Center(child: Text('No related images'));
+          }
+          final list = state.list;
+          return SizedBox(
+            height: 150,
+            child: ListView.builder(
+              itemCount: list.length,
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(right: 16),
+              itemBuilder: (context, index) {
+                final photo = list[index];
+                return Padding(
+                  padding: EdgeInsets.only(left: index == 0 ? 16 : 8),
+                  child: buildRelatedItem(photo),
+                );
+              },
+            ),
+          );
+        })
+      ],
+    );
+  }
+
+  Widget buildRelatedItem(PhotoModel photo) {
+    return AspectRatio(
+      aspectRatio: 3 / 4,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: ExtendedImage.network(
+          photo.source?.medium ?? '',
+          fit: BoxFit.cover,
         ),
       ),
     );
