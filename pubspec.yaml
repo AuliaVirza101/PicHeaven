@@ -7,6 +7,7 @@ environment:
   sdk: '>=3.4.4 <4.0.0'
 
 dependencies:
+  d_info: ^0.2.0
   d_input: ^0.5.1
   extended_image: ^9.0.7
   fd_log: ^0.0.8
@@ -17,6 +18,7 @@ dependencies:
   get_it: ^8.0.2
   google_fonts: ^6.2.1
   http: ^1.2.2
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

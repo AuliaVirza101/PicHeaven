@@ -1,9 +1,11 @@
+import 'package:d_info/d_info.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:photoidea_app/common/enums.dart';
 import 'package:photoidea_app/screen/controller/detail_photo_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailPhotoPage extends StatefulWidget {
   const DetailPhotoPage({super.key, required this.id});
@@ -18,7 +20,11 @@ class DetailPhotoPage extends StatefulWidget {
 class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final detailPhotoController = Get.put(DetailPhotoController());
 
-  void openUrl(String url) {}
+  void openUrl(String url) async {
+    if (!await launchUrl(Uri.parse(url))) {
+      DInfo.toastError('could not launch URL');
+    }
+  }
 
   void fetchDetail() {
     detailPhotoController.fetchRequest(widget.id);
@@ -104,23 +110,23 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     return IconButton(
         onPressed: () {
           showDialog(
-            context: context,
-            builder: (context) => Stack(
-              children: [
-                Positioned.fill(
-                  child: InteractiveViewer(
-                    child: ExtendedImage.network(imageUrl))),
-                const Align(
-                  alignment: Alignment.topCenter,
-                  child: CloseButton(
-                    color: Colors.white,
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.black45)
-                    ),
-                  ),
-                ),
-              ],
-            ));
+              context: context,
+              builder: (context) => Stack(
+                    children: [
+                      Positioned.fill(
+                          child: InteractiveViewer(
+                              child: ExtendedImage.network(imageUrl))),
+                      const Align(
+                        alignment: Alignment.topCenter,
+                        child: CloseButton(
+                          color: Colors.white,
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  WidgetStatePropertyAll(Colors.black45)),
+                        ),
+                      ),
+                    ],
+                  ));
         },
         color: Colors.white,
         style: const ButtonStyle(
