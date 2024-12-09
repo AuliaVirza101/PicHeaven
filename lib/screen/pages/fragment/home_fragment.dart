@@ -1,9 +1,11 @@
 import 'package:d_input/d_input.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:fd_log/fd_log.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photoidea_app/common/app_constants.dart';
 import 'package:photoidea_app/common/enums.dart';
+import 'package:photoidea_app/core/di.dart';
 import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/data/datasources/remote_photo_datasources.dart';
 import 'package:photoidea_app/screen/controller/currated_photos_controller.dart';
@@ -19,6 +21,7 @@ class _HomeFragmentState extends State<HomeFragment> {
   @override
   final queryController = TextEditingController();
   final curratedPhotosController = Get.put(CurratedPhotosController());
+  final scrollController = ScrollController();
   //manual karena tidak ada api untuk categories biar cantik saja :')
   final categories = [
     'happy',
@@ -35,6 +38,13 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   void initState() {
     curratedPhotosController.fetchRequest();
+    scrollController.addListener(() {
+      bool reachMax =
+          scrollController.offset == scrollController.position.maxScrollExtent;
+      if (reachMax) {
+        curratedPhotosController.fetchRequest();
+      }
+    });
     super.initState();
   }
 
@@ -43,15 +53,19 @@ class _HomeFragmentState extends State<HomeFragment> {
     super.dispose();
   }
 
+  //MAINNNNNN
   Widget build(BuildContext context) {
     return RefreshIndicator.adaptive(
       onRefresh: () async {},
       child: ListView(
+        controller: scrollController,
         padding: const EdgeInsets.all(0),
         children: [
           buildHeader(),
           buildCategories(),
           buildCurrated(),
+          buildLoadingOrFailed(),
+          
         ],
       ),
     );
@@ -166,7 +180,7 @@ class _HomeFragmentState extends State<HomeFragment> {
       if (state.fetchStatus == FetchStatus.init) {
         return const SizedBox();
       }
-      final list = state.list ?? [];
+      final list = state.list;
 
       return GridView.builder(
         itemCount: list.length,
@@ -192,5 +206,34 @@ class _HomeFragmentState extends State<HomeFragment> {
       photo.source?.medium ?? '',
       fit: BoxFit.cover,
     );
+  }
+
+  Widget buildLoadingOrFailed() {
+    return Obx(() {
+      final state = curratedPhotosController.state;
+      if (state.fetchStatus == FetchStatus.loading) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+      if (state.fetchStatus == FetchStatus.failed) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Center(
+            child: Text(state.message),
+          ),
+        );
+      }
+      if (state.fetchStatus == FetchStatus.success && !state.hasMore) {
+         return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Center(
+            child: Text('No more photos'),
+          ),
+        );
+      };
+      return SizedBox(height: 5,);
+    
+    });
   }
 }

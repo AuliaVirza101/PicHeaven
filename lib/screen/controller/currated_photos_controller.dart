@@ -4,25 +4,37 @@ import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/data/datasources/remote_photo_datasources.dart';
 
 class CurratedPhotosController extends GetxController {
-  final _state = CurratedPhotosControllerState().obs;
-  CurratedPhotosControllerState get state => _state.value;
-  set state(CurratedPhotosControllerState n) => _state.value = n;
+  final _state = CurratedPhotoState().obs;
+  CurratedPhotoState get state => _state.value;
+  set state(CurratedPhotoState n) => _state.value = n;
 
   Future<void> fetchRequest() async {
+    if (!state.hasMore) return;
+
     state = state.copyWith(
       fetchStatus: FetchStatus.loading,
+      currentPage: state.currentPage,
     );
 
-    final (success, message, list) = await RemotePhotoDatasources.fetchCurrated(
-      1,
-      10
+    final (success, message, newlist) = await RemotePhotoDatasources.fetchCurrated(
+      state.currentPage,
+      10,
     );
+    if (!success) {
+      state = state.copyWith(
+        fetchStatus: FetchStatus.failed,
+        message: message,
+      );
+      return;
+    }
 
     state = state.copyWith(
-      fetchStatus: success ? FetchStatus.success : FetchStatus.failed,
+      fetchStatus: FetchStatus.success,
       message: message,
-      list: list,
+      list:[...state.list,...newlist!] ,
+      hasMore: newlist.isNotEmpty,
     );
+    
   }
 
   static delete() {
@@ -30,26 +42,34 @@ class CurratedPhotosController extends GetxController {
   }
 }
 
-class CurratedPhotosControllerState {
+class CurratedPhotoState {
   final FetchStatus fetchStatus;
   final String message;
-  final List<PhotoModel>? list;
+  final List<PhotoModel> list;
+  final int currentPage;
+  final bool hasMore; //apakah masih ada lagi datanya
 
-  CurratedPhotosControllerState({
+  CurratedPhotoState({
     this.fetchStatus = FetchStatus.init,
     this.message = '',
-    this.list,
+    this.list =const [],
+    this.currentPage = 0,
+    this.hasMore = true,
   });
 
-  CurratedPhotosControllerState copyWith({
+  CurratedPhotoState copyWith({
     FetchStatus? fetchStatus,
     String? message,
     List<PhotoModel>? list,
+    int? currentPage,
+    bool? hasMore,
   }) {
-    return CurratedPhotosControllerState(
+    return CurratedPhotoState(
       fetchStatus: fetchStatus ?? this.fetchStatus,
       message: message ?? this.message,
       list: list ?? this.list,
+      currentPage: currentPage ?? this.currentPage,
+      hasMore: hasMore ?? this.hasMore,
     );
   }
 }
