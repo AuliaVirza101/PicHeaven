@@ -33,8 +33,16 @@ class _HomeFragmentState extends State<HomeFragment> {
     'business',
     'nature'
   ];
+  final showUpButton = RxBool(false);
 
   void gotoSearch() {}
+
+  void gotoUpPage() {
+    scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn);
+    showUpButton.value = false;
+  }
 
   void initState() {
     curratedPhotosController.fetchRequest();
@@ -43,6 +51,12 @@ class _HomeFragmentState extends State<HomeFragment> {
           scrollController.offset == scrollController.position.maxScrollExtent;
       if (reachMax) {
         curratedPhotosController.fetchRequest();
+      }
+
+      bool passMaxHeight =
+          scrollController.offset > MediaQuery.sizeOf(context).height;
+      if (passMaxHeight) {
+        showUpButton.value = passMaxHeight;
       }
     });
     super.initState();
@@ -55,19 +69,23 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   //MAINNNNNN
   Widget build(BuildContext context) {
-    return RefreshIndicator.adaptive(
-      onRefresh: () async {},
-      child: ListView(
-        controller: scrollController,
-        padding: const EdgeInsets.all(0),
-        children: [
-          buildHeader(),
-          buildCategories(),
-          buildCurrated(),
-          buildLoadingOrFailed(),
-          
-        ],
-      ),
+    return Stack(
+      children: [
+        RefreshIndicator.adaptive(
+          onRefresh: () async {},
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(0),
+            children: [
+              buildHeader(),
+              buildCategories(),
+              buildCurrated(),
+              buildLoadingOrFailed(),
+            ],
+          ),
+        ),
+        Positioned(bottom: 30, right: 30, child: buildUpwardButton()),
+      ],
     );
   }
 
@@ -225,15 +243,30 @@ class _HomeFragmentState extends State<HomeFragment> {
         );
       }
       if (state.fetchStatus == FetchStatus.success && !state.hasMore) {
-         return Padding(
+        return Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Center(
             child: Text('No more photos'),
           ),
         );
-      };
-      return SizedBox(height: 5,);
-    
+      }
+      ;
+      return SizedBox(
+        height: 5,
+      );
+    });
+  }
+
+  Widget buildUpwardButton() {
+    return Obx(() {
+      if (showUpButton.value) {
+        return FloatingActionButton.small(
+          heroTag: 'icon_scroll_upward',
+          onPressed: gotoUpPage,
+          child: const Icon(Icons.arrow_upward),
+        );
+      }
+      return const SizedBox();
     });
   }
 }
