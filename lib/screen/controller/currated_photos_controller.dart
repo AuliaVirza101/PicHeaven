@@ -8,6 +8,11 @@ class CurratedPhotosController extends GetxController {
   CurratedPhotoState get state => _state.value;
   set state(CurratedPhotoState n) => _state.value = n;
 
+  void reset() {
+    _state.value = CurratedPhotoState();
+    fetchRequest();
+  }
+
   Future<void> fetchRequest() async {
     if (!state.hasMore) return;
 
@@ -16,7 +21,8 @@ class CurratedPhotosController extends GetxController {
       currentPage: state.currentPage,
     );
 
-    final (success, message, newlist) = await RemotePhotoDatasources.fetchCurrated(
+    final (success, message, newlist) =
+        await RemotePhotoDatasources.fetchCurrated(
       state.currentPage,
       10,
     );
@@ -31,10 +37,9 @@ class CurratedPhotosController extends GetxController {
     state = state.copyWith(
       fetchStatus: FetchStatus.success,
       message: message,
-      list:[...state.list,...newlist!] ,
+      list: [...state.list, ...newlist!],
       hasMore: newlist.isNotEmpty,
     );
-    
   }
 
   static delete() {
@@ -52,7 +57,7 @@ class CurratedPhotoState {
   CurratedPhotoState({
     this.fetchStatus = FetchStatus.init,
     this.message = '',
-    this.list =const [],
+    this.list = const [],
     this.currentPage = 0,
     this.hasMore = true,
   });

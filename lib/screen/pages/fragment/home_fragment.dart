@@ -35,6 +35,10 @@ class _HomeFragmentState extends State<HomeFragment> {
   ];
   final showUpButton = RxBool(false);
 
+  void refresh() {
+    curratedPhotosController.reset();
+  }
+
   void gotoSearch() {}
 
   void gotoUpPage() {
@@ -72,7 +76,7 @@ class _HomeFragmentState extends State<HomeFragment> {
     return Stack(
       children: [
         RefreshIndicator.adaptive(
-          onRefresh: () async {},
+          onRefresh: () async => refresh(),
           child: ListView(
             controller: scrollController,
             padding: const EdgeInsets.all(0),
