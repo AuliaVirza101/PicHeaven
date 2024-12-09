@@ -9,6 +9,7 @@ import 'package:photoidea_app/core/di.dart';
 import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/data/datasources/remote_photo_datasources.dart';
 import 'package:photoidea_app/screen/controller/currated_photos_controller.dart';
+import 'package:photoidea_app/screen/pages/fragment/search_photo_page.dart';
 
 class HomeFragment extends StatefulWidget {
   const HomeFragment({super.key});
@@ -39,7 +40,10 @@ class _HomeFragmentState extends State<HomeFragment> {
     curratedPhotosController.reset();
   }
 
-  void gotoSearch() {}
+  void gotoSearch() {
+    final query = queryController.text;
+    Navigator.pushNamed(context, SearchPhotoPage.routename, arguments: query);
+  }
 
   void gotoUpPage() {
     scrollController.animateTo(0,
@@ -68,6 +72,7 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   void dispose() {
     CurratedPhotosController.delete();
+    scrollController.dispose;
     super.dispose();
   }
 

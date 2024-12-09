@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:photoidea_app/core/di.dart';
 import 'package:photoidea_app/screen/pages/fragment/dashboard_pages.dart';
+import 'package:photoidea_app/screen/pages/fragment/search_photo_page.dart';
 
 void main() {
   initInjection();
@@ -15,10 +16,16 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme : ThemeData(
+      theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      routes: {'/': (context) => const DashboardPage()},
+      routes: {
+        '/': (context) => const DashboardPage(),
+        SearchPhotoPage.routename: (context) {
+          final query = ModalRoute.of(context)?.settings.arguments as String;
+          return SearchPhotoPage(query: query);
+        }
+      },
     );
   }
 }

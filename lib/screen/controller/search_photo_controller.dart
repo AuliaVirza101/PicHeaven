@@ -3,17 +3,17 @@ import 'package:photoidea_app/common/enums.dart';
 import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/data/datasources/remote_photo_datasources.dart';
 
-class CurratedPhotosController extends GetxController {
-  final _state = CurratedPhotoState().obs;
-  CurratedPhotoState get state => _state.value;
-  set state(CurratedPhotoState n) => _state.value = n;
+class SearchPhotosController extends GetxController {
+  final _state = SearchPhotostate().obs;
+  SearchPhotostate get state => _state.value;
+  set state(SearchPhotostate n) => _state.value = n;
 
-  void reset() {
-    state = CurratedPhotoState();
-    fetchRequest();
+  void research(String query) {
+    state = SearchPhotostate();
+    fetchRequest(query);
   }
 
-  Future<void> fetchRequest() async {
+  Future<void> fetchRequest(String query) async {
     if (!state.hasMore) return;
 
     state = state.copyWith(
@@ -22,9 +22,10 @@ class CurratedPhotosController extends GetxController {
     );
 
     final (success, message, newlist) =
-        await RemotePhotoDatasources.fetchCurrated(
-      state.currentPage,
-      10,
+        await RemotePhotoDatasources.search(
+          query,
+          state.currentPage,
+          20,
     );
     if (!success) {
       state = state.copyWith(
@@ -43,18 +44,18 @@ class CurratedPhotosController extends GetxController {
   }
 
   static delete() {
-    Get.delete<CurratedPhotosController>(force: true);
+    Get.delete<SearchPhotosController>(force: true);
   }
 }
 
-class CurratedPhotoState {
+class SearchPhotostate {
   final FetchStatus fetchStatus;
   final String message;
   final List<PhotoModel> list;
   final int currentPage;
   final bool hasMore; //apakah masih ada lagi datanya
 
-  CurratedPhotoState({
+  SearchPhotostate({
     this.fetchStatus = FetchStatus.init,
     this.message = '',
     this.list = const [],
@@ -62,14 +63,14 @@ class CurratedPhotoState {
     this.hasMore = true,
   });
 
-  CurratedPhotoState copyWith({
+  SearchPhotostate copyWith({
     FetchStatus? fetchStatus,
     String? message,
     List<PhotoModel>? list,
     int? currentPage,
     bool? hasMore,
   }) {
-    return CurratedPhotoState(
+    return SearchPhotostate(
       fetchStatus: fetchStatus ?? this.fetchStatus,
       message: message ?? this.message,
       list: list ?? this.list,
