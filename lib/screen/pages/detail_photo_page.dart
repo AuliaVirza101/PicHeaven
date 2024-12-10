@@ -8,6 +8,7 @@ import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/screen/controller/detail_photo_controller.dart';
 import 'package:photoidea_app/screen/controller/is_saved_controller.dart';
 import 'package:photoidea_app/screen/controller/related_photo_controller.dart';
+import 'package:photoidea_app/screen/controller/save_photo_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetailPhotoPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final detailPhotoController = Get.put(DetailPhotoController());
   final relatedPhotosController = Get.put(RelatedPhotosController());
   final isSavedController = Get.put(IsSavedController());
+  final savePhotoController = Get.put(SavePhotoController());
 
   void openUrl(String url) async {
     if (!await launchUrl(Uri.parse(url))) {
@@ -46,6 +48,22 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     isSavedController.executeRequest(widget.id);
   }
 
+  void saveOrUnsave(bool isSaved, PhotoModel photo) async {
+    SavePhotoControllerState state = isSaved
+     ? await savePhotoController.remove(widget.id)
+     : await savePhotoController.save(photo);
+
+    if (state.fetchStatus == FetchStatus.failed) {
+      DInfo.toastError(state.message);
+      return;
+    }
+    if (state.fetchStatus == FetchStatus.success) {
+      checkIsSaved();
+      DInfo.toastError(state.message);
+      return;
+    }
+  }
+
   @override
   void initState() {
     fetchDetail();
@@ -58,6 +76,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     DetailPhotoController.delete();
     RelatedPhotosController.delete();
     IsSavedController.delete();
+    SavePhotoController.delete();
     super.dispose();
   }
 
@@ -93,7 +112,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
                         buildBackButton(),
                         const Spacer(),
                         buildPreview(photo.source?.original ?? ''),
-                        buildSavedButton(),
+                        buildSavedButton(photo),
                       ],
                     ),
                   ),
@@ -161,21 +180,15 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
         icon: const Icon(Icons.visibility));
   }
 
-  Widget buildSavedButton() {
+  Widget buildSavedButton(PhotoModel photo) {
     return Obx(() {
       final isSaved = isSavedController.state.status;
       return IconButton(
-          onPressed: () {
-            if(isSaved){
-
-            }else{
-
-            }
-          },
+          onPressed: () => saveOrUnsave(isSaved,photo),
           color: Colors.white,
           style: const ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(Colors.black38)),
-          icon: Icon(isSaved ? Icons.bookmark :Icons.bookmark_border));
+          icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border));
     });
   }
 

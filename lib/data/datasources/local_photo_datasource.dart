@@ -22,7 +22,7 @@ class LocalPhotoDatasource {
         where: 'id=?',
         whereArgs: [id],
       );
-      return (true, 'Checked', list.isNotEmpty ? true : false);
+      return (true, 'Checked', list.isNotEmpty);
     } catch (e) {
       return (false, 'Something went wrong', null);
     }
@@ -31,7 +31,7 @@ class LocalPhotoDatasource {
   static Future<(bool, String)> savePhoto(PhotoModel photo) async {
     try {
       final database = await sl<DatabaseHelper>().database;
-      final rowAffected = await database.insert('saved', photo.toJsonSaved());
+      final rowAffected = await database.insert('saved', photo.toJsonSaved(),);
       if (rowAffected != 0) {
         return (true, 'Image Saved');
       }

@@ -4,12 +4,12 @@ import 'package:path/path.dart';
 class DatabaseHelper {
   Database? _database;
   Future<Database> get database async {
-    _database ?? await _initDB();
+    _database ??= await _initDB();
     return _database!;
   }
 
   Future _initDB() async {
-    openDatabase(
+   return openDatabase(
       join(await getDatabasesPath(), 'photo_idea.db'),
       onCreate: (db, version) {
         return db.execute('''
