@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:photoidea_app/common/enums.dart';
 import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
 import 'package:photoidea_app/screen/controller/detail_photo_controller.dart';
+import 'package:photoidea_app/screen/controller/is_saved_controller.dart';
 import 'package:photoidea_app/screen/controller/related_photo_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,6 +23,7 @@ class DetailPhotoPage extends StatefulWidget {
 class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final detailPhotoController = Get.put(DetailPhotoController());
   final relatedPhotosController = Get.put(RelatedPhotosController());
+  final isSavedController = Get.put(IsSavedController());
 
   void openUrl(String url) async {
     if (!await launchUrl(Uri.parse(url))) {
@@ -40,9 +42,14 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     relatedPhotosController.fetchRequest(query);
   }
 
+  void checkIsSaved() {
+    isSavedController.executeRequest(widget.id);
+  }
+
   @override
   void initState() {
     fetchDetail();
+    checkIsSaved();
     super.initState();
   }
 
@@ -50,6 +57,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   void dispose() {
     DetailPhotoController.delete();
     RelatedPhotosController.delete();
+    IsSavedController.delete();
     super.dispose();
   }
 
@@ -154,12 +162,21 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   }
 
   Widget buildSavedButton() {
-    return IconButton(
-        onPressed: () {},
-        color: Colors.white,
-        style: const ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(Colors.black38)),
-        icon: const Icon(Icons.bookmark_border));
+    return Obx(() {
+      final isSaved = isSavedController.state.status;
+      return IconButton(
+          onPressed: () {
+            if(isSaved){
+
+            }else{
+
+            }
+          },
+          color: Colors.white,
+          style: const ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(Colors.black38)),
+          icon: Icon(isSaved ? Icons.bookmark :Icons.bookmark_border));
+    });
   }
 
   Widget buildOpenOnPexels(String url) {

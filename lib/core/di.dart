@@ -1,5 +1,6 @@
 import 'package:fd_log/fd_log.dart';
 import 'package:get_it/get_it.dart';
+import 'package:photoidea_app/data/datasources/db/database_helper.dart';
 //sl = servicelocater
 //di = dependency injection
 
@@ -14,4 +15,5 @@ initInjection() {
     prefix: 'Ok',
   );
   sl.registerLazySingleton(() => fdLog);
+  sl.registerLazySingleton(() => DatabaseHelper());
 }
