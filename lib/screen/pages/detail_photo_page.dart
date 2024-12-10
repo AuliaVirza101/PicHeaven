@@ -9,6 +9,7 @@ import 'package:photoidea_app/screen/controller/detail_photo_controller.dart';
 import 'package:photoidea_app/screen/controller/is_saved_controller.dart';
 import 'package:photoidea_app/screen/controller/related_photo_controller.dart';
 import 'package:photoidea_app/screen/controller/save_photo_controller.dart';
+import 'package:photoidea_app/screen/controller/saved_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetailPhotoPage extends StatefulWidget {
@@ -26,6 +27,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final relatedPhotosController = Get.put(RelatedPhotosController());
   final isSavedController = Get.put(IsSavedController());
   final savePhotoController = Get.put(SavePhotoController());
+  final savedController = Get.find<SavedController>();
 
   void openUrl(String url) async {
     if (!await launchUrl(Uri.parse(url))) {
@@ -50,8 +52,8 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
 
   void saveOrUnsave(bool isSaved, PhotoModel photo) async {
     SavePhotoControllerState state = isSaved
-     ? await savePhotoController.remove(widget.id)
-     : await savePhotoController.save(photo);
+        ? await savePhotoController.remove(widget.id)
+        : await savePhotoController.save(photo);
 
     if (state.fetchStatus == FetchStatus.failed) {
       DInfo.toastError(state.message);
@@ -59,6 +61,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     }
     if (state.fetchStatus == FetchStatus.success) {
       checkIsSaved();
+      savedController.fetchRequest();
       DInfo.toastError(state.message);
       return;
     }
@@ -184,7 +187,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     return Obx(() {
       final isSaved = isSavedController.state.status;
       return IconButton(
-          onPressed: () => saveOrUnsave(isSaved,photo),
+          onPressed: () => saveOrUnsave(isSaved, photo),
           color: Colors.white,
           style: const ButtonStyle(
               backgroundColor: WidgetStatePropertyAll(Colors.black38)),
