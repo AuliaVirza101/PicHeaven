@@ -1,13 +1,11 @@
 import 'package:d_input/d_input.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:fd_log/fd_log.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:photoidea_app/common/app_constants.dart';
 import 'package:photoidea_app/common/enums.dart';
-import 'package:photoidea_app/core/di.dart';
 import 'package:photoidea_app/data/datasources/db/models/photo_model.dart';
-import 'package:photoidea_app/data/datasources/remote_photo_datasources.dart';
 import 'package:photoidea_app/screen/controller/currated_photos_controller.dart';
 import 'package:photoidea_app/screen/pages/detail_photo_page.dart';
 import 'package:photoidea_app/screen/pages/search_photo_page.dart';
@@ -20,7 +18,7 @@ class HomeFragment extends StatefulWidget {
 }
 
 class _HomeFragmentState extends State<HomeFragment> {
-  @override
+ 
   final queryController = TextEditingController();
   final curratedPhotosController = Get.put(CurratedPhotosController());
   final scrollController = ScrollController();
@@ -58,7 +56,7 @@ class _HomeFragmentState extends State<HomeFragment> {
         curve: Curves.fastOutSlowIn);
     showUpButton.value = false;
   }
-
+   @override
   void initState() {
     curratedPhotosController.fetchRequest();
     scrollController.addListener(() {
@@ -76,7 +74,7 @@ class _HomeFragmentState extends State<HomeFragment> {
     });
     super.initState();
   }
-
+   @override
   void dispose() {
     CurratedPhotosController.delete();
     scrollController.dispose;
@@ -97,6 +95,7 @@ class _HomeFragmentState extends State<HomeFragment> {
               buildCategories(),
               buildCurrated(),
               buildLoadingOrFailed(),
+              const Gap(80)
             ],
           ),
         ),

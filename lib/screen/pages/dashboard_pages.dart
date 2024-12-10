@@ -33,6 +33,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         );
       }),
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       bottomNavigationBar: buildButtomNav(),
     );
